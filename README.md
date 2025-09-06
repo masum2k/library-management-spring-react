@@ -84,7 +84,7 @@ A full-stack web application for managing library operations with role-based acc
 - **Connection Pooling**: Database connection optimization
 - **Caching**: JWT token validation caching
 - **Error Handling**: Comprehensive error management
-- 
+  
 ## JAVA 17
 - **Java 17 with Spring Boot framework
 - **Spring Security 6 for authentication & authorization
@@ -94,8 +94,7 @@ A full-stack web application for managing library operations with role-based acc
 - **Maven for dependency management
 - **Lombok for reducing boilerplate code
 - **Validation API for comprehensive input validation
-- **Frontend Security
-- 
+  
 ## REACTJS
 - ** JWT Token Secure Storage - HttpOnly cookie implementation
 - ** Role-based Component Rendering - Dynamic UI permissions
