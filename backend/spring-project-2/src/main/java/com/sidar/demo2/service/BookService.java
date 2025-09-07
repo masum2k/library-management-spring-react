@@ -22,6 +22,17 @@ public class BookService {
         return bookRepository.findAll(pageable);
     }
 
+    public Page<Book> searchBooks(String title, String author, Pageable pageable) {
+        if ((title == null || title.trim().isEmpty()) && (author == null || author.trim().isEmpty())) {
+            return getAllBooks(pageable);
+        }
+        return bookRepository.findByTitleContainingIgnoreCaseOrAuthorContainingIgnoreCase(
+                title != null ? title.trim() : "",
+                author != null ? author.trim() : "",
+                pageable
+        );
+    }
+
     public Book addBook(Book book) {
         return bookRepository.save(book);
     }

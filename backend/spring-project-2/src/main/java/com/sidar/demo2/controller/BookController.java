@@ -21,8 +21,35 @@ public class BookController {
     }
 
     @GetMapping
-    public Page<Book> getBooks(@PageableDefault(size = 10, sort = "id") Pageable pageable) {
+    public Page<Book> getBooks(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String author,
+            @PageableDefault(size = 10, sort = "id") Pageable pageable) {
+
+        if (search != null && !search.trim().isEmpty()) {
+            return bookService.searchBooks(search, search, pageable);
+        }
+
+        if ((title != null && !title.trim().isEmpty()) || (author != null && !author.trim().isEmpty())) {
+            return bookService.searchBooks(title, author, pageable);
+        }
+
         return bookService.getAllBooks(pageable);
+    }
+
+    @GetMapping("/search")
+    public Page<Book> searchBooks(
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String author,
+            @RequestParam(required = false) String query,
+            @PageableDefault(size = 10, sort = "id") Pageable pageable) {
+
+        if (query != null && !query.trim().isEmpty()) {
+            return bookService.searchBooks(query, query, pageable);
+        }
+
+        return bookService.searchBooks(title, author, pageable);
     }
 
     @GetMapping("/{id}")
