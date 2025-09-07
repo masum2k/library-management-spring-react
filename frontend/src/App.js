@@ -438,7 +438,7 @@ const Sidebar = ({ activeTab, setActiveTab, isMobile, isOpen, setIsOpen }) => {
   );
 };
 
-const Dashboard = () => {
+const Dashboard = ({ setActiveTab }) => {
   const { user } = useAuth();
   const [stats, setStats] = useState(null);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
