@@ -4,7 +4,7 @@ A full-stack web application for managing library operations with role-based acc
 
 ## Live Demo
 
-- **Frontend (React)**: [[https://library-project-delta-three.vercel.app/](https://library-project-delta-three.vercel.app/)](https://library-management-spring-react-1pi.vercel.app/)
+- **Frontend (React)**: https://library-management-spring-react-1pi.vercel.app/
 - **Backend API (Spring Boot)**: Deployed on Railway
 
 ## Features
