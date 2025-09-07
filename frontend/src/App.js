@@ -441,6 +441,7 @@ const Sidebar = ({ activeTab, setActiveTab, isMobile, isOpen, setIsOpen }) => {
 const Dashboard = () => {
   const { user } = useAuth();
   const [stats, setStats] = useState(null);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -546,20 +547,37 @@ const Dashboard = () => {
         <div className="bg-white p-6 rounded-xl shadow-sm border">
           <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
           <div className="space-y-3">
-            <button className="w-full flex items-center space-x-3 p-3 text-left hover:bg-gray-50 rounded-lg">
-              <Book className="w-5 h-5 text-blue-600" />
-              <span>View All Books</span>
-            </button>
+            <QuickActionButton
+              icon={Book}
+              text="View All Books"
+              color="text-blue-600"
+              onClick={() => setActiveTab("books")}
+            />
+
             {(user?.role === "ADMIN" || user?.role === "SUPER_ADMIN") && (
-              <button className="w-full flex items-center space-x-3 p-3 text-left hover:bg-gray-50 rounded-lg">
-                <Users className="w-5 h-5 text-green-600" />
-                <span>Manage Users</span>
-              </button>
+              <QuickActionButton
+                icon={Users}
+                text="Manage Users"
+                color="text-green-600"
+                onClick={() => setActiveTab("users")}
+              />
             )}
-            <button className="w-full flex items-center space-x-3 p-3 text-left hover:bg-gray-50 rounded-lg">
-              <Settings className="w-5 h-5 text-gray-600" />
-              <span>Settings</span>
-            </button>
+
+            {(user?.role === "ADMIN" || user?.role === "SUPER_ADMIN") && (
+              <QuickActionButton
+                icon={BarChart3}
+                text="View Statistics"
+                color="text-purple-600"
+                onClick={() => setActiveTab("stats")}
+              />
+            )}
+
+            <QuickActionButton
+              icon={Settings}
+              text="Account Settings"
+              color="text-gray-600"
+              onClick={() => setShowSettingsModal(true)}
+            />
           </div>
         </div>
 
@@ -578,12 +596,31 @@ const Dashboard = () => {
               <span className="text-gray-600">Status:</span>
               <span className="text-green-600 font-medium">Active</span>
             </div>
+            <div className="flex justify-between">
+              <span className="text-gray-600">Member Since:</span>
+              <span className="font-medium">
+                {user?.createdAt
+                  ? new Date(user.createdAt).toLocaleDateString()
+                  : "N/A"}
+              </span>
+            </div>
           </div>
         </div>
       </div>
     </div>
   );
 };
+
+// QuickActionButton component'i ekle
+const QuickActionButton = ({ icon: Icon, text, color, onClick }) => (
+  <button
+    onClick={onClick}
+    className="w-full flex items-center space-x-3 p-3 text-left hover:bg-gray-50 rounded-lg transition-colors duration-150"
+  >
+    <Icon className={`w-5 h-5 ${color}`} />
+    <span className="font-medium">{text}</span>
+  </button>
+);
 
 const BooksPage = () => {
   const { isLibrarian } = useAuth();
@@ -753,6 +790,85 @@ const BooksPage = () => {
           }}
         />
       )}
+    </div>
+  );
+};
+
+const SettingsModal = ({ isOpen, onClose }) => {
+  const { user, logout } = useAuth();
+  const [formData, setFormData] = useState({
+    username: user?.username || "",
+    email: user?.email || "",
+  });
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl p-6 w-full max-w-md">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold">Account Settings</h2>
+          <button onClick={onClose}>
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Username
+            </label>
+            <input
+              type="text"
+              value={formData.username}
+              disabled
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Email
+            </label>
+            <input
+              type="email"
+              value={formData.email}
+              disabled
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Role
+            </label>
+            <input
+              type="text"
+              value={user?.role || ""}
+              disabled
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
+            />
+          </div>
+
+          <div className="flex space-x-3 pt-4 border-t">
+            <button
+              onClick={onClose}
+              className="flex-1 bg-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-400"
+            >
+              Close
+            </button>
+            <button
+              onClick={() => {
+                logout();
+                onClose();
+              }}
+              className="flex-1 bg-red-600 text-white py-2 rounded-lg hover:bg-red-700"
+            >
+              Logout
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
@@ -1290,7 +1406,7 @@ const App = () => {
   const renderActiveTab = () => {
     switch (activeTab) {
       case "dashboard":
-        return <Dashboard />;
+        return <Dashboard setActiveTab={setActiveTab} />;
       case "books":
         return <BooksPage />;
       case "users":
@@ -1298,7 +1414,7 @@ const App = () => {
       case "stats":
         return <StatsPage />;
       default:
-        return <Dashboard />;
+        return <Dashboard setActiveTab={setActiveTab} />;
     }
   };
 
@@ -1326,6 +1442,12 @@ const App = () => {
         )}
 
         <main className="flex-1 p-6 overflow-auto">{renderActiveTab()}</main>
+
+        {/* Settings Modal'ı ekle */}
+        <SettingsModal
+          isOpen={activeTab === "dashboard" && showSettingsModal}
+          onClose={() => setShowSettingsModal(false)}
+        />
       </div>
     </div>
   );
