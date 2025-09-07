@@ -473,6 +473,7 @@ const Dashboard = ({ setActiveTab }) => {
 
   return (
     <div className="space-y-6">
+      {/* üst kısım */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">
@@ -491,58 +492,7 @@ const Dashboard = ({ setActiveTab }) => {
         </div>
       </div>
 
-      {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-white p-6 rounded-xl shadow-sm border">
-            <div className="flex items-center">
-              <Users className="w-8 h-8 text-blue-600" />
-              <div className="ml-4">
-                <p className="text-2xl font-bold text-gray-900">
-                  {stats.totalUsers}
-                </p>
-                <p className="text-gray-600">Total Users</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-xl shadow-sm border">
-            <div className="flex items-center">
-              <CheckCircle className="w-8 h-8 text-green-600" />
-              <div className="ml-4">
-                <p className="text-2xl font-bold text-gray-900">
-                  {stats.activeUsers}
-                </p>
-                <p className="text-gray-600">Active Users</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-xl shadow-sm border">
-            <div className="flex items-center">
-              <Book className="w-8 h-8 text-purple-600" />
-              <div className="ml-4">
-                <p className="text-2xl font-bold text-gray-900">
-                  {stats.totalBooks}
-                </p>
-                <p className="text-gray-600">Total Books</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-xl shadow-sm border">
-            <div className="flex items-center">
-              <UserPlus className="w-8 h-8 text-orange-600" />
-              <div className="ml-4">
-                <p className="text-2xl font-bold text-gray-900">
-                  {stats.registrationsToday}
-                </p>
-                <p className="text-gray-600">New Today</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
+      {/* Quick Actions */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white p-6 rounded-xl shadow-sm border">
           <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
@@ -580,33 +530,13 @@ const Dashboard = ({ setActiveTab }) => {
             />
           </div>
         </div>
-
-        <div className="bg-white p-6 rounded-xl shadow-sm border">
-          <h3 className="text-lg font-semibold mb-4">System Info</h3>
-          <div className="space-y-3">
-            <div className="flex justify-between">
-              <span className="text-gray-600">Your Role:</span>
-              <span className="font-medium">{user?.role}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Email:</span>
-              <span className="font-medium">{user?.email}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Status:</span>
-              <span className="text-green-600 font-medium">Active</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Member Since:</span>
-              <span className="font-medium">
-                {user?.createdAt
-                  ? new Date(user.createdAt).toLocaleDateString()
-                  : "N/A"}
-              </span>
-            </div>
-          </div>
-        </div>
       </div>
+
+      {/* Settings Modal artık burada */}
+      <SettingsModal
+        isOpen={showSettingsModal}
+        onClose={() => setShowSettingsModal(false)}
+      />
     </div>
   );
 };
@@ -1442,12 +1372,6 @@ const App = () => {
         )}
 
         <main className="flex-1 p-6 overflow-auto">{renderActiveTab()}</main>
-
-        {/* Settings Modal'ı ekle */}
-        <SettingsModal
-          isOpen={activeTab === "dashboard" && showSettingsModal}
-          onClose={() => setShowSettingsModal(false)}
-        />
       </div>
     </div>
   );
