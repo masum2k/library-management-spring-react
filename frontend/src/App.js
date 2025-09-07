@@ -477,7 +477,7 @@ const Dashboard = ({ setActiveTab }) => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">
-            Welcome back, {user?.username}!!
+            !! Welcome back, {user?.username} !!
           </h1>
           <p className="text-gray-600 mt-1">
             Here's what's happening in your library today.
