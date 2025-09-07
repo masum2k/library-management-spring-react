@@ -21,13 +21,14 @@ import {
   Menu,
   X,
 } from "lucide-react";
+
 import "./App.css";
 
 // Auth Context
 const AuthContext = createContext();
 
 // API Base URL - Backend'inizin URL'i
-const API_BASE = "https://spring-project-2-production.up.railway.app/api";
+const API_BASE = process.env.REACT_APP_API_BASE;
 
 // Auth Provider
 const AuthProvider = ({ children }) => {
