@@ -2,8 +2,12 @@
 
 A full-stack web application for managing library operations with role-based access control, built with Spring Boot and React.
 
-## Live Demo
+## Demo User
+- username: superadmin
+- password: SuperAdmin123!
+- Rol: SUPER_ADMIN
 
+## Live Demo
 - **Frontend (React)**: https://library-management-spring-react-1pi.vercel.app/
 - **Backend API (Spring Boot)**: Deployed on Railway
 
