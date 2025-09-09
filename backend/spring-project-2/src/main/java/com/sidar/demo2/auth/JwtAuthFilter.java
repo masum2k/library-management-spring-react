@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 
 @Slf4j
 @Component
@@ -36,44 +37,30 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         final String requestURI = request.getRequestURI();
         final String method = request.getMethod();
 
-        log.debug("Processing request: {} {}", method, requestURI);
-
         if (HttpMethod.OPTIONS.matches(method)) {
-            log.debug("OPTIONS request, skipping JWT validation");
             filterChain.doFilter(request, response);
             return;
         }
 
         if (requestURI.startsWith("/api/auth/")) {
-            log.debug("Public endpoint accessed: {}", requestURI);
             filterChain.doFilter(request, response);
             return;
         }
 
         final String authHeader = request.getHeader("Authorization");
-        final String jwt;
-        final String username;
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            log.debug("No Bearer token found for protected endpoint: {}", requestURI);
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json");
-            response.setCharacterEncoding("UTF-8");
-            response.getWriter().write("{\"error\": \"Authentication required\", \"path\": \"" + requestURI + "\"}");
+            sendErrorResponse(response, "Authentication required", HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
 
-        jwt = authHeader.substring(7);
-        log.debug("JWT token extracted, length: {}", jwt.length());
+        final String jwt = authHeader.substring(7);
 
         try {
-            username = jwtUtil.extractUsername(jwt);
-            log.debug("Username extracted from token: {}", username);
+            final String username = jwtUtil.extractUsername(jwt);
 
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
-                log.debug("UserDetails loaded for user: {}, authorities: {}",
-                        username, userDetails.getAuthorities());
 
                 if (jwtUtil.validateToken(jwt, userDetails)) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
@@ -83,27 +70,28 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     );
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
-
-                    log.debug("Authentication set in SecurityContext for user: {} with authorities: {}",
-                            username, userDetails.getAuthorities());
                 } else {
-                    log.warn("Invalid token for user: {}", username);
-                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    response.setContentType("application/json");
-                    response.setCharacterEncoding("UTF-8");
-                    response.getWriter().write("{\"error\": \"Invalid token\"}");
+                    sendErrorResponse(response, "Invalid token", HttpServletResponse.SC_UNAUTHORIZED);
                     return;
                 }
             }
         } catch (Exception e) {
-            log.error("Cannot set user authentication: ", e);
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json");
-            response.setCharacterEncoding("UTF-8");
-            response.getWriter().write("{\"error\": \"Authentication failed: " + e.getMessage() + "\"}");
+            log.warn("Authentication failed for URI {}: {}", requestURI, e.getMessage());
+            sendErrorResponse(response, "Authentication failed", HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private void sendErrorResponse(HttpServletResponse response, String message, int status) throws IOException {
+        response.setStatus(status);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        try (PrintWriter writer = response.getWriter()) {
+            writer.write("{\"error\": \"" + message + "\"}");
+            writer.flush();
+        }
     }
 }

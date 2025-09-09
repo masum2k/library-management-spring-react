@@ -55,54 +55,61 @@ public class JwtUtil {
                     .parseSignedClaims(token)
                     .getPayload();
         } catch (ExpiredJwtException e) {
-            log.error("JWT token is expired: {}", e.getMessage());
+            log.warn("JWT token expired");
             throw e;
         } catch (UnsupportedJwtException e) {
-            log.error("JWT token is unsupported: {}", e.getMessage());
+            log.warn("JWT token unsupported");
             throw e;
         } catch (MalformedJwtException e) {
-            log.error("JWT token is malformed: {}", e.getMessage());
+            log.warn("JWT token malformed");
             throw e;
         } catch (SecurityException e) {
-            log.error("JWT signature validation failed: {}", e.getMessage());
+            log.warn("JWT signature validation failed");
             throw e;
         } catch (IllegalArgumentException e) {
-            log.error("JWT token compact of handler are invalid: {}", e.getMessage());
+            log.warn("JWT token invalid");
             throw e;
         }
     }
 
     private Boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
+        try {
+            return extractExpiration(token).before(new Date());
+        } catch (Exception e) {
+            return true; // Consider expired if we can't determine
+        }
     }
 
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("role", userDetails.getAuthorities().iterator().next().getAuthority());
+        if (!userDetails.getAuthorities().isEmpty()) {
+            claims.put("role", userDetails.getAuthorities().iterator().next().getAuthority());
+        }
         return createToken(claims, userDetails.getUsername());
     }
 
     public String generateRefreshToken(UserDetails userDetails) {
-        Map<String, Object> claims = new HashMap<>();
-        return createRefreshToken(claims, userDetails.getUsername());
+        return createRefreshToken(new HashMap<>(), userDetails.getUsername());
     }
 
     private String createToken(Map<String, Object> claims, String subject) {
+        long now = System.currentTimeMillis();
         return Jwts.builder()
                 .claims(claims)
                 .subject(subject)
-                .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + jwtExpiration))
-                .signWith(secretKey, SignatureAlgorithm.HS512) // ✅ Algoritma belirt
+                .issuedAt(new Date(now))
+                .expiration(new Date(now + jwtExpiration))
+                .signWith(secretKey, SignatureAlgorithm.HS512)
                 .compact();
     }
 
     private String createRefreshToken(Map<String, Object> claims, String subject) {
+        long now = System.currentTimeMillis();
         return Jwts.builder()
                 .claims(claims)
                 .subject(subject)
-                .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + refreshExpiration))
+                .issuedAt(new Date(now))
+                .expiration(new Date(now + refreshExpiration))
                 .signWith(secretKey, SignatureAlgorithm.HS512)
                 .compact();
     }
@@ -112,7 +119,7 @@ public class JwtUtil {
             final String username = extractUsername(token);
             return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
         } catch (JwtException | IllegalArgumentException e) {
-            log.error("JWT validation failed: {}", e.getMessage());
+            log.debug("JWT validation failed: {}", e.getMessage());
             return false;
         }
     }
@@ -125,7 +132,7 @@ public class JwtUtil {
                     .parseSignedClaims(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
-            log.error("JWT token validation failed: {}", e.getMessage());
+            log.debug("JWT token validation failed");
             return false;
         }
     }
