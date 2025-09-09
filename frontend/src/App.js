@@ -1368,7 +1368,7 @@ const App = () => {
     </div>
   );
 };
-
+// AuthProvider
 export default function LibraryManagementSystem() {
   return (
     <AuthProvider>
