@@ -24,13 +24,10 @@ import {
 
 import "./App.css";
 
-// Auth Context
 const AuthContext = createContext();
 
-// API Base URL - Backend'inizin URL'i
 const API_BASE = process.env.REACT_APP_API_BASE;
 
-// Auth Provider
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem("token"));
@@ -38,7 +35,6 @@ const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     if (token) {
-      // Token varsa kullanıcı bilgilerini decode et
       try {
         const payload = JSON.parse(atob(token.split(".")[1]));
         const userData = JSON.parse(localStorage.getItem("user") || "{}");
@@ -132,7 +128,6 @@ const useAuth = () => {
   return context;
 };
 
-// API Helper
 const apiRequest = async (endpoint, options = {}) => {
   const token = localStorage.getItem("token");
   const config = {
@@ -153,7 +148,6 @@ const apiRequest = async (endpoint, options = {}) => {
   return response.json();
 };
 
-// Components
 const Notification = ({ message, type = "info", onClose }) => {
   useEffect(() => {
     const timer = setTimeout(onClose, 3000);
@@ -541,7 +535,6 @@ const Dashboard = ({ setActiveTab }) => {
   );
 };
 
-// QuickActionButton component'i ekle
 const QuickActionButton = ({ icon: Icon, text, color, onClick }) => (
   <button
     onClick={onClick}
@@ -1305,7 +1298,6 @@ const StatsPage = () => {
   );
 };
 
-// Main App Component
 const App = () => {
   const { isAuthenticated, loading } = useAuth();
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -1377,7 +1369,6 @@ const App = () => {
   );
 };
 
-// Main component with AuthProvider
 export default function LibraryManagementSystem() {
   return (
     <AuthProvider>
