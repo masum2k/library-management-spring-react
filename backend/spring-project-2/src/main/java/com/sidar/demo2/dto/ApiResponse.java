@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
-/// deneme yasingithub desktop
+/// deneme yasingithub desktop, deneme sidar
 @Data
 @Builder
 @NoArgsConstructor
