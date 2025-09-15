@@ -27,7 +27,7 @@ public class UserService {
         return userRepository.findAll(pageable)
                 .map(this::convertToDto);
     }
-//
+
     @Transactional
     public void changeUserRole(Long userId, Role newRole) {
         User user = userRepository.findById(userId)
